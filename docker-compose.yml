@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  gin-sample:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workdir
+    tty: true
+    ports:
+      - 8080:8080

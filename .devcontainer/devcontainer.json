@@ -1,0 +1,18 @@
+{
+    "service": "gin-sample",
+    "dockerComposeFile": "../docker-compose.yml",
+    "workspaceFolder": "/workdir",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go"
+            ]
+        },
+        "settings": {
+            "editor.defaultFormatter": "golang.go",
+            "go.formatTool": "goimports",
+            "editor.formatOnSave": true
+        }
+        
+    }
+}
