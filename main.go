@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,14 +21,43 @@ var (
 )
 
 type Todo struct {
-    ID        uint       `gorm:"primarykey" json:"id"`
-    CreatedAt time.Time  `json:"-"`
-    UpdatedAt time.Time  `json:"-"`
-    Contents  string `gorm:"not null" json:"contents"`
+	ID        uint      `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	Contents  string    `gorm:"not null" json:"contents"`
+}
+
+type CreateTodoRequest struct {
+	Contents string `json:"contents"`
 }
 
 func main() {
-	engine := gin.Default()
+	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"http://host.docker.internal",
+			"http://localhost",
+			"http://0.0.0.0",
+			"*",
+		},
+		AllowMethods: []string{
+			"POST",
+			"GET",
+			"PUT",
+			"DELETE",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Access-Control-Allow-Credentials",
+			"Access-Control-Allow-Headers",
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"Authorization",
+		},
+		MaxAge: 24 * time.Hour,
+	}))
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -36,7 +66,7 @@ func main() {
 
 	db.AutoMigrate(&Todo{})
 
-	engine.GET("/todo", func(c *gin.Context) {
+	r.GET("/todo", func(c *gin.Context) {
 		var todos []Todo
 
 		db.Find(&todos)
@@ -46,5 +76,24 @@ func main() {
 		})
 	})
 
-	engine.Run(":8000")
+	r.OPTIONS("/todo", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
+
+	r.PUT("/todo", func(c *gin.Context) {
+		var data CreateTodoRequest
+
+		if err := c.BindJSON(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Invalid params",
+			})
+			return
+		}
+
+		db.Create(&Todo{Contents: data.Contents})
+
+		c.Status(http.StatusCreated)
+	})
+
+	r.Run(":8000")
 }
