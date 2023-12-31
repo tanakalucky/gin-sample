@@ -31,6 +31,10 @@ type CreateTodoRequest struct {
 	Contents string `json:"contents"`
 }
 
+type DeleteTodoRequest struct {
+	ID int `json:"id"`
+}
+
 func main() {
 	r := gin.Default()
 
@@ -93,6 +97,23 @@ func main() {
 		db.Create(&Todo{Contents: data.Contents})
 
 		c.Status(http.StatusCreated)
+	})
+
+	r.DELETE("/todo/delete", func(c *gin.Context) {
+		var data DeleteTodoRequest
+
+		if err := c.BindJSON(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Invalid params",
+			})
+			return
+		}
+
+		todo := Todo{}
+		db.First(&todo, data.ID)
+		db.Delete(&todo)
+
+		c.Status(http.StatusNoContent)
 	})
 
 	r.Run(":8000")
