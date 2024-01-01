@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"gin-sample/api"
 	"gin-sample/models"
 
 	"github.com/gin-contrib/cors"
@@ -21,19 +22,6 @@ var (
 	database = os.Getenv("DATABASE")
 	dsn      = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
 )
-
-type CreateTodoRequest struct {
-	Contents string `json:"contents"`
-}
-
-type DeleteTodoRequest struct {
-	ID int `json:"id"`
-}
-
-type EditTodoRequest struct {
-	ID       int    `json:"id"`
-	Contents string `json:"contents"`
-}
 
 func main() {
 	r := gin.Default()
@@ -85,7 +73,7 @@ func main() {
 	})
 
 	r.PUT("/todo", func(c *gin.Context) {
-		var data CreateTodoRequest
+		var data api.CreateTodoRequest
 
 		if err := c.BindJSON(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -100,7 +88,7 @@ func main() {
 	})
 
 	r.DELETE("/todo/delete", func(c *gin.Context) {
-		var data DeleteTodoRequest
+		var data api.DeleteTodoRequest
 
 		if err := c.BindJSON(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -128,7 +116,7 @@ func main() {
 	})
 
 	r.POST("/todo/edit", func(c *gin.Context) {
-		var data EditTodoRequest
+		var data api.EditTodoRequest
 
 		if err := c.BindJSON(&data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
