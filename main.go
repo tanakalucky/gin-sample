@@ -35,6 +35,11 @@ type DeleteTodoRequest struct {
 	ID int `json:"id"`
 }
 
+type EditTodoRequest struct {
+	ID       int    `json:"id"`
+	Contents string `json:"contents"`
+}
+
 func main() {
 	r := gin.Default()
 
@@ -114,6 +119,36 @@ func main() {
 		db.Delete(&todo)
 
 		c.Status(http.StatusNoContent)
+	})
+
+	r.GET("/todo/:id", func(c *gin.Context) {
+		todo := Todo{}
+
+		id := c.Param("id")
+		db.First(&todo, id)
+
+		c.JSON(http.StatusOK, gin.H{
+			"item": todo,
+		})
+	})
+
+	r.POST("/todo/edit", func(c *gin.Context) {
+		var data EditTodoRequest
+
+		if err := c.BindJSON(&data); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Invalid params",
+			})
+			return
+		}
+
+		todo := Todo{}
+		db.First(&todo, data.ID)
+
+		todo.Contents = data.Contents
+		db.Save(&todo)
+
+		c.Status(http.StatusOK)
 	})
 
 	r.Run(":8000")
