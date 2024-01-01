@@ -78,7 +78,7 @@ func main() {
 	r.GET("/todo", func(c *gin.Context) {
 		var todos []Todo
 
-		db.Find(&todos)
+		db.Order("id").Find(&todos)
 
 		c.JSON(http.StatusOK, gin.H{
 			"items": todos,
