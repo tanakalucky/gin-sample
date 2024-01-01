@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"gin-sample/models"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
@@ -19,13 +21,6 @@ var (
 	database = os.Getenv("DATABASE")
 	dsn      = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
 )
-
-type Todo struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time `json:"-"`
-	UpdatedAt time.Time `json:"-"`
-	Contents  string    `gorm:"not null" json:"contents"`
-}
 
 type CreateTodoRequest struct {
 	Contents string `json:"contents"`
@@ -73,10 +68,10 @@ func main() {
 		panic("fail to connect database.")
 	}
 
-	db.AutoMigrate(&Todo{})
+	db.AutoMigrate(&models.Todo{})
 
 	r.GET("/todo", func(c *gin.Context) {
-		var todos []Todo
+		var todos []models.Todo
 
 		db.Order("id").Find(&todos)
 
@@ -99,7 +94,7 @@ func main() {
 			return
 		}
 
-		db.Create(&Todo{Contents: data.Contents})
+		db.Create(&models.Todo{Contents: data.Contents})
 
 		c.Status(http.StatusCreated)
 	})
@@ -114,7 +109,7 @@ func main() {
 			return
 		}
 
-		todo := Todo{}
+		todo := models.Todo{}
 		db.First(&todo, data.ID)
 		db.Delete(&todo)
 
@@ -122,7 +117,7 @@ func main() {
 	})
 
 	r.GET("/todo/:id", func(c *gin.Context) {
-		todo := Todo{}
+		todo := models.Todo{}
 
 		id := c.Param("id")
 		db.First(&todo, id)
@@ -142,7 +137,7 @@ func main() {
 			return
 		}
 
-		todo := Todo{}
+		todo := models.Todo{}
 		db.First(&todo, data.ID)
 
 		todo.Contents = data.Contents
