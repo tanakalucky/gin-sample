@@ -16,11 +16,12 @@ import (
 )
 
 var (
-	host     = os.Getenv("HOST")
-	username = os.Getenv("USERNAME")
-	password = os.Getenv("USERPASS")
-	database = os.Getenv("DATABASE")
-	dsn      = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
+	host        = os.Getenv("HOST")
+	username    = os.Getenv("USERNAME")
+	password    = os.Getenv("USERPASS")
+	database    = os.Getenv("DATABASE")
+	dsn         = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
+	allowOrigin = os.Getenv("ALLOWORIGIN")
 )
 
 func main() {
@@ -28,10 +29,7 @@ func main() {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
-			"http://host.docker.internal",
-			"http://localhost",
-			"http://0.0.0.0",
-			"*",
+			allowOrigin,
 		},
 		AllowMethods: []string{
 			"POST",
