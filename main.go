@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"gin-sample/controllers"
@@ -16,20 +17,20 @@ import (
 )
 
 var (
-	host        = os.Getenv("HOST")
-	username    = os.Getenv("USERNAME")
-	password    = os.Getenv("USERPASS")
-	database    = os.Getenv("DATABASE")
-	dsn         = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
-	allowOrigin = os.Getenv("ALLOWORIGIN")
+	host              = os.Getenv("HOST")
+	username          = os.Getenv("USERNAME")
+	password          = os.Getenv("USERPASS")
+	database          = os.Getenv("DATABASE")
+	dsn               = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable TimeZone=Asia/Tokyo", host, username, password, database)
+	allowOriginPrifix = os.Getenv("ALLOW_ORIGIN_PRIFIX")
 )
 
 func main() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			allowOrigin,
+		AllowOriginFunc: func(origin string) bool {
+			return strings.HasPrefix(origin, allowOriginPrifix)
 		},
 		AllowMethods: []string{
 			"POST",
