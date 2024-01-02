@@ -56,6 +56,12 @@ func main() {
 		panic("fail to connect database.")
 	}
 
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic("Failed to get sql.DB from Gorm")
+	}
+	defer sqlDB.Close()
+
 	db.AutoMigrate(&models.Todo{})
 
 	r.GET("/todo", func(c *gin.Context) {
